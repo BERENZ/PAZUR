@@ -130,6 +130,7 @@ mmean2 <- function(A) {
   return(apply(A,2,sum))
 }
 
+
 ### little change by Maciej Beresewicz (compare colMeans function)
 mmean3 <- function(A) {
   return(colMeans(A))
@@ -232,7 +233,6 @@ plot(mb)
 
 #Funkcja resample
 setwd('Meeting - 2014-03-14/Speedup R - Pawel Kliber (PUE)') #change by Maciej Beresewicz
-
 source("resample.R")
 load("ago.Rdata")
 dd <- ago[ago$d==1,]

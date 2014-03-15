@@ -233,6 +233,7 @@ plot(mb)
 
 #Funkcja resample
 setwd('Meeting - 2014-03-14/Speedup R - Pawel Kliber (PUE)') #change by Maciej Beresewicz
+
 source("resample.R")
 load("ago.Rdata")
 dd <- ago[ago$d==1,]

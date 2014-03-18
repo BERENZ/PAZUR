@@ -130,11 +130,7 @@ mmean2 <- function(A) {
   return(apply(A,2,sum))
 }
 
-<<<<<<< HEAD
 
-=======
-<<<<<<< HEAD
->>>>>>> 7dfa0dfb0cd0e93f89672df21c4ad6e419655aa5
 ### little change by Maciej Beresewicz (compare colMeans function)
 mmean3 <- function(A) {
   return(colMeans(A))
@@ -142,12 +138,6 @@ mmean3 <- function(A) {
 
 
 mb <- microbenchmark(mmean1(A), mmean2(A),mmean3(A))
-<<<<<<< HEAD
-=======
-=======
-mb <- microbenchmark(mmean1(A), mmean2(A))
->>>>>>> aa084e059d6e57568d6e5a89bd58274ed948bc59
->>>>>>> 7dfa0dfb0cd0e93f89672df21c4ad6e419655aa5
 mb
 plot(mb)
 
@@ -242,15 +232,7 @@ plot(mb)
 
 
 #Funkcja resample
-<<<<<<< HEAD
 setwd('Meeting - 2014-03-14/Speedup R - Pawel Kliber (PUE)') #change by Maciej Beresewicz
-=======
-<<<<<<< HEAD
-setwd('Meeting - 2014-03-14/Speedup R - Pawel Kliber (PUE)') #change by Maciej Beresewicz
-
-=======
->>>>>>> aa084e059d6e57568d6e5a89bd58274ed948bc59
->>>>>>> 7dfa0dfb0cd0e93f89672df21c4ad6e419655aa5
 source("resample.R")
 load("ago.Rdata")
 dd <- ago[ago$d==1,]

@@ -1,0 +1,270 @@
+---
+title: "To link or not to link? Probabilistic record linkage in statistics"
+author: "Beręsewicz Maciej"
+date: "27/06/2014, PAZUR 8 @ PUT"
+output:
+  ioslides_presentation:
+    highlight: espresso
+    smaller: yes
+    widescreen: yes
+runtime: shiny
+---
+
+## Outline
+
+ - Idea of record linkage
+ - Probabilistic record linkage
+ - Record Linkage in R - RecordLinkage package
+ - Examples
+ 
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+library(RecordLinkage)
+library(Matrix)
+load('~/Dokumenty/TWARDZIEL/Materiały Naukowe/_SKN_ESTYMATOR_/PAZUR/2014.06.27/Dane.RData')
+```
+
+## Idea of record linkage
+
+For one dataset
+
+- cleaning, 
+- deduplicating
+
+For more than one dataset
+
+- merging unit-level datasets (e.g. multiframe surveys)
+- adding information from different sources (e.g. survey and census)
+  
+Types of record linkage:
+
+- deterministic record linkage
+- probabilistic record linkage
+- (statistical matching/data fusion)
+
+Paradigm change in statistics (Official Statistics)
+
+## Usage of record linkage in Official Statistics (1)
+
+Examples from Statistics New Zeland (2013). SNZ has developed twelve principles that govern the policy. These are:
+
+- Statistics New Zealand must only undertake data integration if integration will produce or improve official statistics.
+- Data integration should be considered when it can reduce costs, increase quality or minimise compliance load.
+- Data integration benefits must clearly outweigh any privacy concerns about the use of data and risks to the integrity of the official statistics system.
+- Data integration must not occur when it will materially threaten the integrity of the source data collections.
+- Data must not be integrated where any undertaking has been given to respondents that would preclude this.
+- Data integration must be approved at an appropriate level by all the agencies involved.
+
+
+## Usage of record linkage in Official Statistics (2)
+
+- Integrated data must only be used for approved statistical or related research purposes.
+- The size and data variables of the linked dataset must be no larger than necessary to support the approved purposes.
+- Integrated data will be stored apart from other data.
+- Names and addresses can only be kept in an integrated dataset while necessary for linking.
+- Unique identifiers assigned by an external agency must not be retained in an integrated dataset.
+- Data integration must be conducted openly.
+
+## Part of microintegration process (Bakker, 2010)
+
+![alt text](microintegration.png)
+
+## Probabilistic record linkage
+
+Fellegi & Sunter (1969) "Record Linkage is a solution to the problem of recognizing those records in two files which represent identical persons, objects, or events..."
+
+- In probabilistic linkage, you have an algorithm which computes a number (a “weight”) for each pair.
+- This number reflects the probability that the records refer to the same person.
+- The method for calculating this number is simple in principle but sometimes difficult to apply in practice.
+
+
+## RecordLinkage package
+
+Problem: RecordLinkage package was removed from CRAN due to not solved errors in memory management. Sounds like it has been abandoned...
+
+Last version that can be downloaded is: 0.4-1.
+
+Authors: Andreas Borg & Murat Sariyar
+
+Depends: R (>= 2.10.0), e1071, rpart, ada, ipred, stats, evd, RSQLite,
+        methods, data.table (>= 1.6.1), ff, ffbase
+
+Description: Provides functions for linking and deduplicating data
+        sets.  Methods based on a stochastical approach are implemented
+        as well as classification algorithms from the machine learning
+        domain.
+        
+## RecordLinkage functions
+
+- compare.dedup - function for deduplication
+- compare.linkage - function for linkage
+- RLBigDataDedup - function for deduplication big datasets (ff package)
+- RLBigDataLinkage - function for linkage big datasets
+
+- emWeights, epiWeights - function to calculate weights (standard and EpiLink)
+- getPairs - function for obtaining pairs
+
+## compare.dedup - function
+
+compare.dedup function:
+
+```{r,eval=FALSE}
+compare.dedup (dataset, ## input dataset
+              blockfld = FALSE, ## list of columns to be blocked
+              phonetic = FALSE, ## determine if we want to use phonetic code
+              phonfun = pho_h,  ## which function will be used for phonetic code
+              strcmp = FALSE,  ## list of columns to be compared using string metric
+              strcmpfun = jarowinkler,  ## default string metric
+              exclude = FALSE, ## which columns should be excluded from the analysis
+              identity = NA, ## if we know the duplicates
+              n_match = NA, 
+              n_non_match = NA)
+```
+
+## compare.dedup - function
+
+RLBigDataDedup function:
+
+```{r,eval=FALSE}
+RLBigDataDedup(dataset, ### input dataset
+               identity = NA,  ## optional vector with true and non-matches
+               blockfld = list(),  ## list of blocked columns
+               exclude = numeric(0),  ## columns that should be excluded
+               strcmp = numeric(0), ## columns for string comparison
+               strcmpfun = "jarowinkler", 
+               phonetic = numeric(0), ## columns for phonetic comparison
+               phonfun = "pho_h")
+```
+
+## emWeights, epiWeights and getPairs 
+
+```{r,eval=FALSE}
+emWeights(rpairs, ## result of linkage 
+          cutoff = 0.95, ...) 
+
+epiWeights(rpairs, 
+           e = 0.01, 
+           f = rpairs$frequencies)
+
+getPairs(object, 
+         max.weight = Inf, 
+         min.weight = -Inf,
+         single.rows = FALSE, 
+         show = "all", 
+         sort = !is.null(object$Wdata))
+```
+
+
+## Case study
+
+- real estate market dataset
+- we know that duplicates exist 
+- dataset contains both numeric and string variables
+
+## Case study - real estate market (1)
+
+```{r loadData,echo=FALSE}
+load("/home/berenz/Dokumenty/Projekty/Projekty_R/Papers/2014/2014-04-24-WIGE/DataSets/DataForArticle.RData")
+```
+
+```{r headData}
+head(otodom[,2:10])
+names(otodom)
+names(gratka)
+```
+
+## Case study - real estate market (2)
+
+```{r mergeDatasets}
+DataSet<-rbind(otodom,gratka)
+### record linkage using compare.dedup
+pairs<-RLBigDataDedup(DataSet,
+                      exclude=c(1,14), ## name of page and id taken from that pages
+                      blockfld=c(10,13), ## rooms and levels
+                      strcmp=c(4,11,12) ## offerer, district and street
+                      )
+```
+```{r summaryOfPairs}
+pairs
+```
+
+## Case study - real estate market (3)
+
+```{r summaryOfPairs2,message=F,warning=F}
+summary(pairs)
+```
+
+## Case study - real estate market (4)
+
+```{r extractWeights}
+weights<-epiWeights(pairs)
+```
+
+```{r summaryWeights2,message=F,warning=F}
+summary(weights)
+```
+
+## Case study - real estate market (5)
+
+```{r getPairs,message=F,warning=F}
+FinalPairs<-getPairs(weights,
+                     min.weight=0.9)
+FinalPairs2<-getPairs(weights,
+                      min.weight=0.9,
+                      single.rows=TRUE)
+```
+
+## Case study - real estate market (6)
+
+```{r datasummary,echo=FALSE}
+renderDataTable({
+  head(FinalPairs[,c('OFFERER',
+                     'PRICEM2',
+                     'PRICE',
+                     'SURFACE',
+                     'FLOOR',
+                     'ROOMS',
+                     'DICTIONARYGOOGLE',
+                     'New',
+                     'Weight')],100)
+})
+```
+
+
+## Case study - real estate market (7)
+
+```{r datasummary2}
+renderDataTable({
+  tail(FinalPairs[,c('OFFERER',
+                     'PRICEM2',
+                     'PRICE',
+                     'SURFACE',
+                     'FLOOR',
+                     'ROOMS',
+                     'DICTIONARYGOOGLE',
+                     'New',
+                     'Weight')],100)
+})
+```
+
+## Other summaries (1)
+
+```{r summary1}
+xtabs(~PAGE.1+PAGE.2,FinalPairs2)
+### input data 
+nrow(DataSet)
+## output data
+nrow(FinalPairs2)
+```
+
+## Final slide 
+
+Thank you for the attention!
+
+## References
+
+- Bakker B. 2010, Micro-Integration: State of the art [w:] Draft Report of WP1. State of the art on statistical methodologies for data integration, ESSnet on Data Integration, WP1/D1.32/2010JUN.
+- Data Integration Manual, (2006), Statistics New Zealand, Wellington.
+- Dygaszewicz, J., (2010), Integracja rejestrów publicznych, Główny Urząd Statystyczny, Warszawa.
+- Fellegi, I., Sunter, A., 1969, A theory for record linkage, Journal of the American Statistical Association, American Statistical Association, vol. 64, no. 328, Washington DC.
+- Roszka, W., (2013), Statystyczna integracja danych w badaniach społeczno-ekonomicznych, PhD Disseration, Poznan University of Economics.
+
